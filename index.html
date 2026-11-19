@@ -10,11 +10,12 @@
 <style>
 :root{
   --paper:#f5f2ea; --ink:#1c2632; --soft:#5f6772; --rule:#d8d0bf; --rule2:#e7e1d4;
-  --navy:#1f3a5a; --cobre:#9c5a2a; --hl:#efe6d3;
+  --navy:#1f3a5a; --cobre:#9c5a2a; --hl:#efe6d3; --card:#fffdf8; --focus:rgba(156,90,42,.16);
   --serif:"Newsreader",Georgia,serif; --sans:"Libre Franklin",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
+:root[data-theme=dark]{--paper:#15191e; --ink:#e7e2d7; --soft:#9aa0a8; --rule:#343a42; --rule2:#252a31; --navy:#9dbbe0; --cobre:#d99862; --hl:#22282f; --card:#1c2128; --focus:rgba(217,152,98,.2);}
 @media (prefers-color-scheme:dark){
-  :root{--paper:#15191e; --ink:#e7e2d7; --soft:#9aa0a8; --rule:#343a42; --rule2:#252a31; --navy:#9dbbe0; --cobre:#d99862; --hl:#22282f;}
+  :root:not([data-theme=light]){--paper:#15191e; --ink:#e7e2d7; --soft:#9aa0a8; --rule:#343a42; --rule2:#252a31; --navy:#9dbbe0; --cobre:#d99862; --hl:#22282f; --card:#1c2128; --focus:rgba(217,152,98,.2);}
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink)}
@@ -28,12 +29,23 @@ a{color:inherit;text-decoration:none}
 .tag{font-size:12.5px;color:var(--soft);letter-spacing:.2px}
 .tag b{font-weight:600;color:var(--ink)}
 
-.find{position:sticky;top:0;z-index:4;background:var(--paper);padding:22px 0 10px}
-.field{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--rule)}
-.field:focus-within{border-bottom-color:var(--navy)}
-.field span{font-family:var(--mono);font-size:13px;color:var(--cobre)}
-#q{flex:1;border:0;outline:0;background:transparent;color:var(--ink);font-family:var(--serif);font-size:26px;padding:8px 0 10px}
-#q::placeholder{color:var(--soft);opacity:.55}
+.mast-r{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.tema{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px 5px 9px;font:500 12.5px var(--sans);cursor:pointer}
+.tema:hover{border-color:var(--cobre);color:var(--cobre)}
+.tema svg{width:16px;height:16px}
+.find{position:sticky;top:0;z-index:4;background:var(--paper);padding:20px 0 10px}
+.find label{display:block;font-size:11.5px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--navy);margin-bottom:8px}
+.field{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--rule);border-radius:10px;padding:5px 5px 5px 16px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:text;transition:border-color .15s,box-shadow .15s}
+.field:hover{border-color:var(--soft)}
+.field:focus-within{border-color:var(--cobre);box-shadow:0 0 0 4px var(--focus)}
+.field .lupa{flex:none;width:22px;height:22px;color:var(--soft)}
+.field:focus-within .lupa{color:var(--cobre)}
+#q{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font-family:var(--sans);font-size:18px;padding:12px 0}
+#q::placeholder{color:var(--soft);opacity:.85}
+.btn-buscar{flex:none;display:flex;align-items:center;gap:8px;border:0;border-radius:7px;background:var(--ink);color:var(--paper);font:600 14px var(--sans);padding:12px 20px;cursor:pointer}
+.btn-buscar svg{width:17px;height:17px}
+.btn-buscar:hover{background:var(--cobre)}
+@media (max-width:560px){.btn-buscar span{display:none}.btn-buscar{padding:12px 13px}#q{font-size:16px}}
 .how{font-family:var(--mono);font-size:11.5px;color:var(--soft);margin-top:8px;display:flex;gap:18px;flex-wrap:wrap}
 .how em{font-style:normal;color:var(--ink)}
 
@@ -100,24 +112,30 @@ a:hover .pin,.pin.on{opacity:1}
 @media (max-width:640px){.nov a{grid-template-columns:1fr;gap:2px}}
 footer{margin-top:56px;padding-top:12px;border-top:1px solid var(--rule);font-size:12px;color:var(--soft);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 </style>
+<script>try{var t=JSON.parse(localStorage.getItem("ld_tema"));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body>
 <div class="page">
   <div class="mast">
     <div class="logo">Lei<i>Direta</i></div>
-    <div class="tag">Legislação federal com link direto ao <b>texto oficial do Planalto</b></div>
+    <div class="mast-r">
+      <div class="tag">Legislação federal com link direto ao <b>texto oficial do Planalto</b></div>
+      <button class="tema" id="tema" type="button" aria-label="Alternar tema claro ou escuro"></button>
+    </div>
   </div>
 
   <div class="find">
-    <div class="field">
-      <span>§</span>
-      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="cpc 1015 · lei 14.195 · inquilinato · decreto 3048">
+    <label for="q">Pesquisar lei, decreto ou artigo</label>
+    <div class="field" id="field">
+      <span class="lupa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg></span>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Digite aqui o nome, o número ou o artigo. Ex.: cpc 1015, lei 14.195, inquilinato">
+      <button class="btn-buscar" id="buscar" type="button" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg><span>Buscar</span></button>
     </div>
     <div class="how">
       <div><em>cc 421</em> abre no artigo</div>
       <div><em>lei 13.465</em> qualquer lei pelo número</div>
       <div><em>lc 123</em> · <em>dl 911</em> · <em>decreto 9.580</em></div>
-      <div><em>/</em> buscar · <em>Enter</em> abrir</div>
+      <div><em>Enter</em> ou <em>Buscar</em> abre o primeiro resultado</div>
     </div>
   </div>
 
@@ -465,7 +483,7 @@ function search(){
 
   if(p.kind==="artigo"){
     const l = p.law, a = p.art;
-    h.push(goBlock(`${l.sg}, art. ${artLabel(a)}`, `${l.nome} · ${l.ref}`, href(l.path,a), a));
+    h.push(goBlock(`${l.sg}, art. ${artLabel(a)}`, `${l.nome} · ${l.ref}`, href(l.path,a), a).replace('<a class="go"', `<a class="go" data-id="${esc(l.id)}"`));
   }
   if(p.kind==="norma" && p.n){
     const r = resolve(p.type, p.n, p.y);
@@ -541,6 +559,22 @@ $q.addEventListener("keydown", e=>{
   else if(e.key==="Escape"){ $q.value=""; search(); }
 });
 document.addEventListener("keydown", e=>{ if(e.key==="/" && document.activeElement!==$q){ e.preventDefault(); $q.focus(); $q.select(); } });
+// campo de busca: clicar em qualquer ponto da caixa foca o texto; o botão Buscar abre o primeiro resultado
+document.getElementById("field").addEventListener("click", e=>{ if(!e.target.closest("#buscar")) $q.focus(); });
+document.getElementById("buscar").addEventListener("click", ()=>{
+  if($q.value.trim() && items[sel]) items[sel].click();
+  else { $q.focus(); toast("Digite o nome, o número ou o artigo da lei. Ex.: cpc 1015"); }
+});
+// tema claro / escuro (segue o sistema até a pessoa escolher)
+const SOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>';
+const LUA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg>';
+const temaAtual = () => document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+function pintaTema(){ const escuro = temaAtual()==="dark"; document.getElementById("tema").innerHTML = (escuro?SOL:LUA) + (escuro?"Tema claro":"Tema escuro"); }
+document.getElementById("tema").addEventListener("click", ()=>{
+  const novo = temaAtual()==="dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = novo; store.set("tema", novo); pintaTema();
+});
+pintaTema();
 
 renderHome();
 $q.focus();
