@@ -73,6 +73,7 @@ h2 button{border:0;background:none;font:inherit;color:var(--soft);cursor:pointer
 .pin{position:absolute;top:50%;right:-2px;transform:translateY(-50%);opacity:0;border:0;background:var(--paper);color:var(--soft);font-family:var(--mono);font-size:10.5px;padding:2px 6px;cursor:pointer;border:1px solid var(--rule);border-radius:2px}
 .main .pin{top:10px;right:10px;transform:none}
 a:hover .pin,.pin.on{opacity:1}
+@media (hover:none){.pin{display:none}}
 .pin.on{color:var(--cobre);border-color:var(--cobre)}
 
 .recent{font-family:var(--mono);font-size:12.5px;margin-top:10px;line-height:2}
@@ -575,6 +576,15 @@ document.getElementById("tema").addEventListener("click", ()=>{
   document.documentElement.dataset.theme = novo; store.set("tema", novo); pintaTema();
 });
 pintaTema();
+// celular e tablet: a lei abre na mesma aba (no computador continua abrindo em aba nova)
+const TOQUE = matchMedia("(hover: none) and (pointer: coarse)").matches;
+document.addEventListener("click", e=>{
+  if(!TOQUE || e.defaultPrevented) return;
+  const a = e.target.closest("a[href^='http']");
+  if(!a) return;
+  e.preventDefault();
+  location.href = a.href;
+});
 
 renderHome();
 $q.focus();
